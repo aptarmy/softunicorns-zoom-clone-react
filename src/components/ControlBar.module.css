@@ -1,3 +1,7 @@
+.col {
+  padding: 0 1rem;
+}
+
 .controlBar {
   height: 70px;
   background-color: rgb(24, 24, 24);
@@ -6,21 +10,27 @@
 
 .controlBar .buttonContainer {
   text-align: center;
-  padding: 0.7rem;
+  padding: 0.8rem 1rem 0.8rem 0;
   position: relative;
   color: #bdbdbd;
+}
+.controlBar .buttonContainer.noMoreBtn {
+  padding: 0.8rem 0;
 }
 
 .controlBar .buttonContainer .button {
   cursor: pointer;
   transition: color 200ms ease-in-out;
 }
-.controlBar .buttonContainer .button:hover {
+.controlBar .buttonContainer .button:hover,
+.controlBar .buttonContainer .button:hover .buttonIcon {
   color: white;
 }
 
 .controlBar .buttonContainer .buttonIcon {
   font-size: 1.5rem;
+  color: #bdbdbd;
+  transition: color 200ms ease-in-out;
 }
 .controlBar .buttonContainer .buttonMore {
   position: absolute;
