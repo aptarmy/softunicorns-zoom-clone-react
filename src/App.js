@@ -1,7 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, /*Link*/ } from "react-router-dom";
+import { Router, Switch, Route, /*Link*/ } from "react-router-dom";
 import store from './store';
+import history from './history';
 import { Provider } from 'react-redux';
+import { ProtectedRouteAuth } from './components/ProtectedRoute';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Room = React.lazy(() => import('./pages/Room'));
@@ -10,9 +12,9 @@ const App = () => {
   return (
     <Provider store={store}>
       <React.Suspense fallback={<div>Loading...</div>}>
-        <Router>
+        <Router history={history}>
           <Switch>
-            <Route path="/room" render={() => <Room/>} />
+            <ProtectedRouteAuth path="/room" render={() => <Room/>} />
             <Route path="/" render={() => <Home/>} />
           </Switch>
         </Router>
