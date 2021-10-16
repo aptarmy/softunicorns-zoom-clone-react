@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { PageHeader, Button, Menu, Dropdown } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { login, logout } from "../store/userReducer";
+import styles from './HeaderBar.module.css';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -26,24 +27,24 @@ const Header = () => {
     );    
     extra = [
       <Dropdown key="2" overlay={menu} placement="bottomRight">
-        <Button type="link" icon={<UserOutlined/>}>{user.fName}</Button>
+        <Button type="dashed" ghost icon={<UserOutlined/>}>{user.fName}</Button>
       </Dropdown>,
     ]
   }
   if(user.id === null) {
     extra = [
-      <Button key="1" type="primary" onClick={() => { dispatch(login()); message.success('Logged in'); }}>
+      <Button key="1" type="dashed" ghost icon={<LockOutlined />} onClick={() => { dispatch(login()); message.success('Logged in'); }}>
         Login
       </Button>
     ]
   }
   return (
     <PageHeader
+      className={styles.headerBar}
       avatar={{ children: 'S', style: { backgroundColor: '#f56a00', verticalAlign: 'middle' }, size: 'large', gap: '4' }}
       ghost={false}
-      title="Zoom Clone"
-      subTitle="powered by SoftUnicorns"
-      style={{ padding: '8px 24px', height: 64 }}
+      title={<span className={styles.siteName}>Zoom Clone</span>}
+      subTitle={<span className={styles.siteDescription}>powered by SoftUnicorns</span>}
       extra={extra}
     />
   );

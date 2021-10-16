@@ -1,0 +1,35 @@
+.layoutContainer {
+  background-image: url(https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);
+  background-size: cover;
+  background-position: center top;
+}
+.layoutContainer .layout {
+  background-color: transparent;
+  position: relative;;
+}
+.layoutContainer .layout::before {
+  pointer-events: none;
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.layoutContainer .layout .content {
+  padding: 0 50px;
+}
+
+.layoutContainer .layout .footer {
+  color: grey;
+  position: relative;
+  background-color: black;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.8) 100%);
+  text-align: center;
+  padding: 10px 0 0;
+  line-height: calc(64px - 10px);
+  height: 64px;
+}

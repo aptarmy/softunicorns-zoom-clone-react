@@ -1,0 +1,12 @@
+.headerBar {
+  padding: 8px 24px;
+  height: 64px;
+  background: rgb(0,212,255);
+  background: linear-gradient(0deg, rgba(0,212,255,0) 0%, rgba(0,0,0,0.6026785714285714) 25%, rgba(0,0,0,0.7875525210084033) 100%);
+}
+.headerBar .siteName {
+  color: white;
+}
+.headerBar .siteDescription {
+  color: grey;
+}

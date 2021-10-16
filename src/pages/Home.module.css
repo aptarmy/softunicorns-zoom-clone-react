@@ -1,0 +1,47 @@
+.siteContent {
+  min-height: calc(100vh - 64px - 64px);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.siteContent .card {
+  backdrop-filter: blur(5px);
+  background-color: rgb(255 255 255 / 8%);
+  border-radius: 20px;
+  width: 500px;
+  box-shadow: 0px 16px 20px black, inset 0px 1px 2px rgb(255 255 255 / 20%);
+  padding: 1rem;
+}
+
+.siteContent .card .search {
+  border-radius: 30px;
+  overflow: hidden;
+}
+.siteContent .card .search input {
+  padding: 6.5px 1.3rem;
+}
+
+.siteContent .card .divider {
+  color: rgb(255 255 255);
+  position: relative;
+  text-align: center;
+  opacity: 0.3;
+  padding: 1rem 0;
+}
+.siteContent .card .divider::before,
+.siteContent .card .divider::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: calc(50% - 25px);
+  background-color: rgb(255 255 255 / 50%);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0px -2px 0px black;
+}
+.siteContent .card .divider::before { left: 0px; }
+.siteContent .card .divider::after  { right: 0px; }

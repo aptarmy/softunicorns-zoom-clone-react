@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { Input, Divider, Button, Modal, message } from 'antd';
+import { Input, Button, Modal, Card, message } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import FullPageTemplate from '../templates/FullPage';
 import { login } from '../store/userReducer';
 import { setTobeRedirected } from '../store/redirectReducer';
+import styles from './Home.module.css';
 const { Search } = Input;
 
 const Home = () => {
@@ -22,6 +23,7 @@ const Home = () => {
         content: 'Before entering the room, you need to be logged in using your Google account',
         onOk() { dispatch(login()); message.success('Logged in'); },
         onCancel() { dispatch(setTobeRedirected(null)); },
+        centered: true
       });
       return () => modal.destroy();
     }
@@ -33,6 +35,7 @@ const Home = () => {
       content: 'Before entering the room, you need to be logged in using your Google account',
       onOk() { dispatch(login()); message.success('Logged in'); history.push('/room'); },
       onCancel() { console.log('Cancel') },
+      centered: true
     });
   }
   const handleEnterRoomSubmit = () => {
@@ -52,10 +55,12 @@ const Home = () => {
     }
   }
   return (
-    <div>
-      <Search placeholder="Enter Room ID" onSearch={handleEnterRoomSubmit} enterButton="Enter Room" />
-      <Divider dashed></Divider>
-      <div style={{ textAlign: 'center' }}><Button onClick={handleCreateRoomClick}>Create Room</Button></div>
+    <div className={styles.siteContent}>
+      <Card className={styles.card} bordered={false}>
+        <Search className={styles.search} placeholder="Enter Room ID" onSearch={handleEnterRoomSubmit} enterButton="Enter Room" size="large" />
+        <div className={styles.divider}>OR</div>
+        <div style={{ textAlign: 'center' }}><Button type="dashed" ghost onClick={handleCreateRoomClick} size="large">Create Room</Button></div>
+      </Card>
     </div>
   )
 }
