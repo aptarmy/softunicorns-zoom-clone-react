@@ -3,18 +3,24 @@ import { PageHeader, Button, Menu, Dropdown } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
+import { GoogleLogin } from 'react-google-login';
 import { login, logout } from "../store/userReducer";
 import styles from './HeaderBar.module.css';
 
 const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
-  // debuggin
-  window.logout = () => dispatch(logout());
   const dropdownMenuOnClick = ({ key }) => {
     if(key === 'logout') { dispatch(logout()); message.success('Logged out') }
   }
   let extra;
+  const handleLoginSuccess = googleResponse => {
+    console.log('login success:', googleResponse);
+    const payload = { profile: googleResponse.profileObj, token: googleResponse.tokenObj };
+    dispatch(login(payload));
+    message.success('Logged in');
+  }
+  const handleLoginFailure = googleResponse => { console.log('error while loggin in :', googleResponse); }
   // user logged in
   if(user.id !== null) {
     const menu = () => (
@@ -33,9 +39,17 @@ const Header = () => {
   }
   if(user.id === null) {
     extra = [
-      <Button key="1" type="dashed" ghost icon={<LockOutlined />} onClick={() => { dispatch(login()); message.success('Logged in'); }}>
-        Login
-      </Button>
+      <GoogleLogin
+        key="login"
+        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+        onSuccess={handleLoginSuccess}
+        onFailure={handleLoginFailure}
+        render={renderProps => (
+          <Button type="dashed" ghost icon={<LockOutlined />} onClick={renderProps.onClick}>
+            Login
+          </Button>
+        )}
+      />
     ]
   }
   return (

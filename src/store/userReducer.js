@@ -3,20 +3,22 @@ import { createSlice } from '@reduxjs/toolkit'
 export const userReducer = createSlice({
   name: 'user',
   initialState: {
-    id: 123,
-    fName: 'Pakpoom',
-    lName: 'Tiwakornkit',
-    token: 'abcd123',
-    email: 'apt.enjoy@gmail.com',
-    isLoggedIn: true,
+    id: null,
+    fName: null,
+    lName: null,
+    token: null,
+    email: null,
+    imgUrl: null
   },
   reducers: {
-    login(state) {
-      state.id = 123;
-      state.fName = 'Pakpoom';
-      state.lName = 'Tiwakornkit';
-      state.token = 'abcd123';
-      state.email = 'apt.enjoy@gmail.com';
+    login(state, action) {
+      const { profile, token } = action.payload;
+      state.id = parseInt(profile.googleId);
+      state.fName = profile.givenName;
+      state.lName = profile.familyName;
+      state.token = token.id_token;
+      state.email = profile.email;
+      state.imgUrl = profile.imageUrl;
     },
     logout(state) {
       state.id = null;
@@ -24,6 +26,7 @@ export const userReducer = createSlice({
       state.lName = null;
       state.token = null;
       state.email = null;
+      state.imgUrl = null;
     }
   }
 })
