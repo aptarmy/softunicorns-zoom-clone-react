@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { PageHeader, Button, Menu, Dropdown } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { message } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { GoogleLogin } from 'react-google-login';
 import { login, logout } from "../store/userReducer";
@@ -11,14 +10,13 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const dropdownMenuOnClick = ({ key }) => {
-    if(key === 'logout') { dispatch(logout()); message.success('Logged out') }
+    if(key === 'logout') { dispatch(logout()); }
   }
   let extra;
   const handleLoginSuccess = googleResponse => {
     console.log('login success:', googleResponse);
-    const payload = { profile: googleResponse.profileObj, token: googleResponse.tokenObj };
-    dispatch(login(payload));
-    message.success('Logged in');
+    const token = googleResponse.tokenObj.id_token;
+    dispatch(login(token));
   }
   const handleLoginFailure = googleResponse => { console.log('error while loggin in :', googleResponse); }
   // user logged in

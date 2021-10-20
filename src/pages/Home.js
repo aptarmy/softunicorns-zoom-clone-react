@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Input, Button, Card, message } from 'antd';
+import { Input, Button, Card } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import FullPageTemplate from '../templates/FullPage';
@@ -21,12 +21,17 @@ const Home = () => {
   });
   // login modal
   const [ loginModal, setLoginModal ] = useState({ visible: false, title: '', child: '' });
+  // listen user for modal visibility
+  useEffect(() => {
+    if(user.id !== null) {
+      setLoginModal({ ...loginModal, visible: false })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ user ]);
   const loginModalHandleSuccess = googleResponse => {
     console.log('login success:', googleResponse);
-    const payload = { profile: googleResponse.profileObj, token: googleResponse.tokenObj }
-    dispatch(login(payload));
-    setLoginModal({ ...loginModal, visible: false });
-    message.success('Logged in');
+    const token = googleResponse.tokenObj.id_token;
+    dispatch(login(token));
   }
   const loginModalHandleCancel = () => {
     dispatch(setTobeRedirected(null));
