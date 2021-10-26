@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+// For UI purpose only
 export const redirectReducer = createSlice({
   name: 'redirect',
   initialState: {

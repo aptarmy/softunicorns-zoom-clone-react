@@ -4,6 +4,7 @@ import store from './store';
 import history from './history';
 import { Provider } from 'react-redux';
 import { ProtectedRouteAuth } from './components/ProtectedRoute';
+import './helpers/storeListener';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Room = React.lazy(() => import('./pages/Room'));
@@ -15,6 +16,7 @@ const App = () => {
         <Router history={history}>
           <Switch>
             <ProtectedRouteAuth path="/room" render={() => <Room/>} />
+            <ProtectedRouteAuth path="/room/:roomId" render={() => <Room/>} />
             <Route path="/" render={() => <Home/>} />
           </Switch>
         </Router>

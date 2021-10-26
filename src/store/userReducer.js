@@ -37,7 +37,6 @@ export const userReducer = createSlice({
     builder
       .addCase(login.fulfilled, (state, action) => {
         const user = action.payload;
-        console.log(user);
         state.id = user.id;
         state.fName = user.fName;
         state.lName = user.lName;
@@ -58,5 +57,8 @@ export const userReducer = createSlice({
 
 // Action creators are generated for each case reducer function
 export const { logout } = userReducer.actions
+
+// debugging
+window.logout = logout;
 
 export default userReducer.reducer
