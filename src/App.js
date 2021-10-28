@@ -15,8 +15,8 @@ const App = () => {
       <React.Suspense fallback={<div>Loading...</div>}>
         <Router history={history}>
           <Switch>
-            <ProtectedRouteAuth path="/room" render={() => <Room/>} />
             <ProtectedRouteAuth path="/room/:roomId" render={() => <Room/>} />
+            <ProtectedRouteAuth path="/room" render={() => <Room/>} />
             <Route path="/" render={() => <Home/>} />
           </Switch>
         </Router>
