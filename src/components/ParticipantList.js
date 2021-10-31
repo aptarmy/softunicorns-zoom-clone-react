@@ -4,26 +4,22 @@ import { Card, List, Avatar, Button } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import styles from './ParticipantList.module.css';
 
-const data = [
-  { title: 'test 1' },
-  { title: 'test 2' }
-];
-
 const ParticipantList = () => {
   const dispatch = useDispatch();
   const visibility = useSelector(state => state.ui.participantList.visibility);
+  const participants = useSelector(state => state.room.participants.filter(item => item.admitted));
   return (
     <Card title="Participants" className={`${styles.card} ${!visibility ? styles.hide : ''}`} extra={ <Button onClick={() => dispatch(participantListVisibility(false))} shape="circle" icon={<CloseOutlined />} />} bordered={false}>
       <div className={styles.listContainer}>
         <List
           itemLayout="horizontal"
-          dataSource={data}
+          dataSource={participants}
           renderItem={item => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                title={item.title}
-                description="apt.enjoy@gmail.com"
+                avatar={<Avatar src={item.imgUrl} />}
+                title={`${item.fName} ${item.lName}`}
+                description={item.email}
               />
             </List.Item>
           )}

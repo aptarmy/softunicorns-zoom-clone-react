@@ -7,6 +7,7 @@ import LogInModal from '../components/LogInModal';
 import { login } from '../store/userReducer';
 import { setTobeRedirected } from '../store/redirectReducer';
 import { stateSubscriber } from '../helpers/storeListener';
+import { createRoomAPI } from '../helpers/api'
 import styles from './Home.module.css';
 const { Search } = Input;
 
@@ -32,12 +33,14 @@ const Home = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ user ]);
   const handleEnterRoom = () => {
-    console.log('handleEnterRoom callback fired');
     history.push(`/room/${roomIdInput}`);
   }
   const handleCreateRoom = () => {
-   console.log('handleCreateRoom callback fired');
-    history.push(`/room`);
+    createRoomAPI().then(data => {
+      const { room } = data;
+      console.log('room created:', room);
+      history.push(`/room/${room.slug}`);
+    }).catch(error => console.error(error));
   }
   const loginModalHandleSuccess = googleResponse => {
     console.log('login success:', googleResponse);

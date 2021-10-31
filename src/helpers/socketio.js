@@ -14,7 +14,7 @@ class SocketIO {
 			auth: { token },
 			query: { roomSlug }
 		});
-		this.socket.on('connection', socket => console.log('webSocket connected to server'));
+		this.socket.on('connect', socket => console.log('webSocket connected to server'));
 		this.socket.on('connect_error', err => {
 			console.error(err);
 			message.error(`WebSocket error: ${err.message}`);

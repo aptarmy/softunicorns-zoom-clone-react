@@ -10,7 +10,7 @@ const LogInModal = props => {
       onCancel={props.handleCancel}
       footer={[
         <GoogleLogin
-          key="submit"
+          key="login"
           clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
           onSuccess={props.handleSuccess}
           onFailure={props.handleFailure}

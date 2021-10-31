@@ -2,12 +2,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { inWaitingRoomListVisibility } from '../store/uiReducer';
 import { Card, List, Avatar, Button, ConfigProvider } from 'antd';
 import { CloseOutlined, SmileOutlined } from '@ant-design/icons';
+import { socketIO } from '../helpers/socketio';
 import styles from './InWaitingRoomList.module.css';
-
-const data = [
-  { title: 'Thailand' },
-  { title: 'Pakpoom' }
-];
 
 const customizedListEmpty = () => (
   <div className={styles.customizedListEmpty}>
@@ -18,22 +14,26 @@ const customizedListEmpty = () => (
 
 const ParticipantList = () => {
   const dispatch = useDispatch();
+  const room = useSelector(state => state.room);
+  const user = useSelector(state => state.user);
   const visibility = useSelector(state => state.ui.inWaitingRoomList.visibility);
+  const participants = useSelector(state => state.room.participants.filter(item => !item.admitted));
+  const handleOnClickAdmit = userId => socketIO.socket.emit('user-admitted', userId);
   return (
     <Card title="In waiting room" className={`${styles.card} ${!visibility ? styles.hide : ''}`} extra={ <Button onClick={() => dispatch(inWaitingRoomListVisibility(false))} shape="circle" icon={<CloseOutlined />} />} bordered={false}>
       <div className={styles.listContainer}>
       <ConfigProvider renderEmpty={customizedListEmpty}>
           <List
             itemLayout="horizontal"
-            dataSource={data}
+            dataSource={participants}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                  title={item.title}
-                  description="apt.enjoy@gmail.com"
+                  avatar={<Avatar src={item.imgUrl} />}
+                  title={`${item.fName} ${item.lName}`}
+                  description={item.email}
                 />
-                <Button type="primary">Allow</Button>
+                {room.data.ownerId === user.id && <Button type="primary" onClick={() => handleOnClickAdmit(item.id)}>Admit</Button>}
               </List.Item>
             )}
           />

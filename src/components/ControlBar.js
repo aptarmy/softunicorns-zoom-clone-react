@@ -16,6 +16,9 @@ const dropdown = items => {
 
 const ControlBar = props => {
   const dispatch = useDispatch();
+  const participants = useSelector(state => state.room.participants);
+  const participantsAdmitted = participants.filter(item => item.admitted);
+  const participantsNotAdmitted = participants.filter(item => !item.admitted);
   const participantListUI = useSelector(state => state.ui.participantList);
   const inWaitingRoomListUI = useSelector(state => state.ui.inWaitingRoomList);
   return (
@@ -48,7 +51,7 @@ const ControlBar = props => {
       <Col className={styles.col} span={2} offset={5}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => dispatch(participantListVisibility(!participantListUI.visibility))}>
-          <Badge count={2}><TeamOutlined className={styles.buttonIcon} /></Badge>
+          <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Users</div>
           </div>
           <Dropdown className={styles.button} overlay={dropdown(dropdownItems)} placement="bottomRight">
@@ -60,7 +63,7 @@ const ControlBar = props => {
       <Col className={styles.col} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={() => dispatch(inWaitingRoomListVisibility(!inWaitingRoomListUI.visibility))}>
-            <Badge count={5}><ClockCircleOutlined className={styles.buttonIcon} /></Badge>
+            <Badge count={participantsNotAdmitted.length}><ClockCircleOutlined className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Waiting</div>
           </div>
         </div>
