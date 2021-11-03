@@ -1,0 +1,12 @@
+.avatarContainer {
+	width:  100%;
+	height:  100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.avatarContainer .avatar {
+	width: 50%;
+  height: auto;
+  max-width: 200px;
+}

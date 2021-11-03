@@ -1,14 +1,19 @@
 import EventEmitter from 'events';
+import { isEqual } from 'lodash';
+import store from '../store';
 import { socketIO } from './socketio';
 
+window.isEqual = isEqual;
 let handleWebRTCSignaling;
 
 export class WebRTC {
-	constructor({ participants, mediaStreamConstrains, currentUserId }) {
-		this.currentUserId = currentUserId;
+
+	static webRTC;
+
+	constructor({  mediaStreamConstraints }) {
+		this.currentUserId = store.getState().user.id;
 		this.event = new EventEmitter();
-		this.mediaStreamConstrains = mediaStreamConstrains;
-		this.participants = JSON.parse(JSON.stringify(participants));
+		this.mediaStreamConstraints = mediaStreamConstraints;
 		this.configuration = {
 			iceServers: [
 				{ url: 'stun:stun.l.google.com:19302' },
@@ -16,20 +21,30 @@ export class WebRTC {
 				{ url: 'stun:stun2.l.google.com:19302' },
 			]
 		};
+
 		handleWebRTCSignaling = this.handleWebRTCSignaling.bind(this);
+
 		socketIO.socket.on('webrtc-signaling', handleWebRTCSignaling);
-		this.peerConnections = []; // [{ userId: Integer, socketId: string, stream: mediaStream, pc: RTCPeerConnection }]
-		this.participants.forEach(p => {
-			if(p.id === currentUserId) { return }
-			if(!p.admitted) { return }
-			p.sockets.forEach(s => {
-				this.peerConnections.push({ userId: p.id, socketId: s, stream: null, pc: new RTCPeerConnection(this.configuration) });
+
+		this.peerConnections = []; // [{ userId: Integer, socketId: string, MediaStream: mediaStream, pc: RTCPeerConnection }]
+		const participants = store.getState().room.participants;
+		participants.forEach(participant => {
+			if(participant.id === this.currentUserId) { return }
+			if(!participant.admitted) { return }
+			participant.sockets.forEach(s => {
+				this.peerConnections.push({ userId: participant.id, socketId: s.socketId, stream: null, pc: new RTCPeerConnection(this.configuration) });
 			});
 		});
 		this.peerConnections.forEach(peerConnection => {
 			this.registerPeerConnectionEvents(peerConnection);
 		});
 	}
+
+	static getInstance({ mediaStreamConstraints: { audio, video } }) {
+		if(!WebRTC.webRTC) { WebRTC.webRTC = new WebRTC({ mediaStreamConstraints: { audio, video } }) }
+		return WebRTC.webRTC;
+	}
+
 	registerPeerConnectionEvents(peerConnection) {
 		peerConnection.pc.onicecandidate = ({ candidate }) => socketIO.socket.emit('webrtc-signaling', { toSocketId: peerConnection.socketId, candidate })
 		// onnegotiationneeded fired once when track is added to RTCPeerConnection
@@ -49,36 +64,35 @@ export class WebRTC {
 		}
 	}
 	participantChanges(participant, action, socketId) {
-		if(this.currentUserId === participant.id) { return }
-		// socketId is default to the first socket
-		if(!socketId) { socketId = this.participants.find(p => p.id === participant.id).sockets[0] }
+		// make new reference to object
+		const participants = store.getState().room.participants;
+		// on user-admitted socketId will be default to first socketId
+		if(!socketId) { socketId = participants.find(p => p.id === participant.id).sockets[0].socketId }
 		if(action === 'UPDATE') {
-			if(!this.participants.find(p => p.id === participant.id)) { this.participants = [ ...this.participants, participant ] }
-			const participantToUpdate = this.participants.find(p => p.id === participant.id);
-			if(participant.sockets  !== undefined) { participantToUpdate.sockets = [...participant.sockets] }
-			if(participant.admitted !== undefined) { participantToUpdate.admitted = participant.admitted }
+			// user-admitted or user-joined
 			if(!this.peerConnections.find(p => p.socketId === socketId)) {
+				if(this.currentUserId === participant.id) { return }
 				this.peerConnections.push({ userId: participant.id, socketId, stream: null, pc: new RTCPeerConnection(this.configuration) });
 				this.registerPeerConnectionEvents(this.peerConnections.find(p => p.socketId === socketId));
 			}
 		}
 		if(action === 'REMOVE') {
-			const participantToUpdate = this.participants.find(p => p.id === participant.id);
-			participantToUpdate.sockets = [...participant.sockets];
 			const peerConnectionIndex = this.peerConnections.findIndex(p => p.socketId === socketId);
 			this.peerConnections[peerConnectionIndex].pc.close();
 			this.peerConnections.splice(peerConnectionIndex, 1);
+			console.log('updated peerConnections:', this.peerConnections);
 		}
 	}
 	async handleWebRTCSignaling({ fromSocketId, candidate, description }) {
 		console.log('handleWebRTCSignaling:', { fromSocketId, candidate, description });
+		const participants = store.getState().room.participants;
 		try {
-			const participantIndex = this.participants.findIndex(p => {
-				for(let s of p.sockets) { if(s === fromSocketId) { return true } }
+			const participantIndex = participants.findIndex(participant => {
+				for(let socket of participant.sockets) { if(socket.socketId === fromSocketId) { return true } }
 				return false;
 			});
-			if(participantIndex === -1) { return console.log('userId not found in this.participants (id):', fromSocketId); }
-			if(!this.participants[participantIndex].admitted) { return console.log('user is not admitted to the room. RTCConnection refused'); }
+			if(participantIndex === -1) { return console.log('userId not found in participants (id):', fromSocketId); }
+			if(!participants[participantIndex].admitted) { return console.log('user is not admitted to the room. RTCConnection refused'); }
 			const rtcPeerConnection = this.peerConnections.find(p => p.socketId === fromSocketId);
 			if(!rtcPeerConnection) { return console.log('cannot find peerConnection based on socketId:', fromSocketId); }
 		  if(description) {
@@ -86,7 +100,6 @@ export class WebRTC {
 		    if (description.type === 'offer') {
 		    	console.log('got offer: ', description);
 		      await rtcPeerConnection.pc.setRemoteDescription(description);
-		      window.stream = this.stream = await navigator.mediaDevices.getUserMedia(this.mediaStreamConstrains);
 		      // this addTrack method is not going to fire onnegotiationneeded, because it is fired once track is added or removed
 		      this.stream.getTracks().forEach((track) => rtcPeerConnection.pc.addTrack(track, this.stream));
 		      await rtcPeerConnection.pc.setLocalDescription(await rtcPeerConnection.pc.createAnswer());
@@ -105,20 +118,67 @@ export class WebRTC {
 		}
 	}
 
+	updateMediaStreamSettings(socket) {
+		if(socket.socketId !== socketIO.socket.id) { return }
+		const { cameraMuted, micMuted } = socket;
+		this.stream.getTracks().forEach(track => {
+			if(track.kind==='video' &&  cameraMuted) { track.enabled = false }
+			if(track.kind==='video' && !cameraMuted) { track.enabled = true }
+		});
+		this.stream.getTracks().forEach(track => {
+			if(track.kind==='audio' &&  micMuted) { track.enabled = false }
+			if(track.kind==='audio' && !micMuted) { track.enabled = true }
+		});
+	}
+
+	async changeMediaStreamTrack({ mediaStreamConstraints }) {
+		console.log('changeMediaStreamTrack called');
+		// replace track of local stream
+		const newTracks = [];
+		const stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
+		this.stream.getTracks().forEach(oldTrack => {
+			stream.getTracks().forEach(newTrack => {
+				if(oldTrack.kind !== newTrack.kind) { return }
+				if(isEqual(oldTrack.getConstraints(), newTrack.getConstraints())) { return newTrack.stop(); }
+				oldTrack.stop();
+				this.stream.removeTrack(oldTrack);
+				this.stream.addTrack(newTrack);
+				newTracks.push(newTrack);
+			});
+		});
+		this.event.emit('local-stream', this.stream);
+		// replace track of senders
+		newTracks.forEach(newTrack => {
+			this.peerConnections.forEach(peerConnection => {
+				peerConnection.pc.getSenders().forEach(sender => {
+					console.log('loop sender:', sender);
+					if(sender.track.kind === newTrack.kind) {
+						sender.replaceTrack(newTrack);
+					}
+				});
+			});
+		});
+	}
+
 	async start() {
 		try {
-	    window.stream = this.stream = await navigator.mediaDevices.getUserMedia(this.mediaStreamConstrains);
-	    this.peerConnections.forEach(rtcPeerConnection => {
+	    window.stream = this.stream = await navigator.mediaDevices.getUserMedia(this.mediaStreamConstraints);
+	    this.peerConnections.forEach(peerConnection => {
 	    	// addTrack trigger onnegotiationneeded event
-	    	this.stream.getTracks().forEach((track) => rtcPeerConnection.pc.addTrack(track, this.stream));
+	    	this.stream.getTracks().forEach((track) => peerConnection.pc.addTrack(track, this.stream));
 	    });
+	    this.event.emit('local-stream', this.stream);
 	  } catch (err) {
 	    console.error(err);
 	  }
 	}
+
 	destroy() {
 		this.peerConnections.forEach(rtcPeerConnection => rtcPeerConnection.pc.close());
-		if(socketIO.socket) { socketIO.socket.off('webrtc-signaling', handleWebRTCSignaling) }
+		if(socketIO.socket) {
+			socketIO.socket.off('webrtc-signaling', handleWebRTCSignaling);
+		}
 		if(this.stream) { this.stream.getTracks().forEach(track => track.stop()) }
+		WebRTC.webRTC = null;
 	}
 }
