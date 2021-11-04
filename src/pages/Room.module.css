@@ -1,6 +1,19 @@
+.roomContainer {
+  width: 100%;
+  height: 100%;
+}
+.roomContainer:after {
+  content: '';
+  display: table-cell;
+  clear: both;
+}
 .room {
   background-color: black;
   color: white;
   height: 100%;
   width: 100%;
+}
+.room.chatVisible {
+  width: 80%;
+  float: left;
 }

@@ -17,10 +17,11 @@ const ParticipantList = () => {
   const room = useSelector(state => state.room);
   const user = useSelector(state => state.user);
   const visibility = useSelector(state => state.ui.inWaitingRoomList.visibility);
+  const chatVisibility = useSelector(state => state.ui.chat.visibility);
   const participants = useSelector(state => state.room.participants.filter(item => !item.admitted));
   const handleOnClickAdmit = userId => socketIO.socket.emit('user-admitted', userId);
   return (
-    <Card title="In waiting room" className={`${styles.card} ${!visibility ? styles.hide : ''}`} extra={ <Button onClick={() => dispatch(inWaitingRoomListVisibility(false))} shape="circle" icon={<CloseOutlined />} />} bordered={false}>
+    <Card title="In waiting room" className={`${styles.card} ${!visibility ? styles.hide : ''} ${chatVisibility ? styles.chatVisible : ''}`} extra={ <Button onClick={() => dispatch(inWaitingRoomListVisibility(false))} shape="circle" icon={<CloseOutlined />} />} bordered={false}>
       <div className={styles.listContainer}>
       <ConfigProvider renderEmpty={customizedListEmpty}>
           <List

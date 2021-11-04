@@ -7,6 +7,7 @@ import VideoGrid from '../components/VideoGrid';
 import ControlBar from "../components/ControlBar";
 import ParticipantList from "../components/ParticipantList";
 import InWaitingRoomList from '../components/InWaitingRoomList';
+import Chat from '../components/Chat';
 import Loader from '../components/Loader';
 import { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus } from '../store/roomReducer';
 import store from '../store';
@@ -21,6 +22,7 @@ const Room = props => {
   const { roomId } = useParams();
   const room = useSelector(state => state.room);
   const user = useSelector(state => state.user);
+  const chatVisible = useSelector(state => state.ui.chat.visibility);
   const history = useHistory();
   const [ peerConnections, setPeerConnections ] = useState([]);
   const [ localStream, setLocalStream ] = useState();
@@ -139,12 +141,15 @@ const Room = props => {
   return (
     <>
       {(localStream && room.data && room.participants) ?
-        <div className={styles.room}>
+      <div className={styles.roomContainer}>
+        <div className={`${styles.room} ${chatVisible ? styles.chatVisible : ''}`}>
           <VideoGrid peerConnections={[localStream, ...peerConnections]}/>
           <ControlBar/>
           <ParticipantList/>
           <InWaitingRoomList/>
         </div>
+        <Chat/>
+      </div>
       :
         <Loader text="Please wait while the host's letting you in." />
       }

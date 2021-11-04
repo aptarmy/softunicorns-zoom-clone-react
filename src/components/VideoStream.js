@@ -1,10 +1,10 @@
-import { createRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons';
 import VideoAvatar from './VideoAvatar';
 import styles from './VideoStream.module.css';
 
 const VideoStream = props => {
-  const video = createRef();
+  const video = useRef(null);
   useEffect(() => {
     video.current.srcObject = props.stream;
   // eslint-disable-next-line react-hooks/exhaustive-deps

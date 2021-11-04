@@ -1,0 +1,30 @@
+.chat {
+	width: 20%;
+	height:  100%;
+	background-color: white;
+	float: left;
+}
+
+.chat.hide {
+	visibility: hidden;
+}
+
+.chat .chatMessages {
+	height: calc(100% - 32px);
+}
+
+.chat .chatMessages :global(.ant-list-header) {
+	height: 2rem;
+	padding:  0;
+	line-height: 2rem;
+}
+
+.chat .chatMessages :global(.ant-spin-nested-loading) {
+	height: calc(100% - 2rem);
+	overflow: auto;
+	padding: 0 1rem;
+}
+
+.chat .textInput {
+	height:  32px;
+}

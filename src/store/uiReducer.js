@@ -8,6 +8,9 @@ export const uiReducer = createSlice({
     },
     inWaitingRoomList: {
       visibility: false
+    },
+    chat: {
+      visibility: false
     }
   },
   reducers: {
@@ -16,11 +19,14 @@ export const uiReducer = createSlice({
     },
     inWaitingRoomListVisibility(state, action) {
       state.inWaitingRoomList.visibility = action.payload;
+    },
+    chatVisibility(state, action) {
+      state.chat.visibility = action.payload;
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { participantListVisibility, inWaitingRoomListVisibility } = uiReducer.actions
+export const { participantListVisibility, inWaitingRoomListVisibility, chatVisibility } = uiReducer.actions
 
 export default uiReducer.reducer

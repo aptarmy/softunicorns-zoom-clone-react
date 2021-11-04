@@ -7,6 +7,9 @@
   background-color: rgba(255,255,255,0.8);
   border-radius: 10px;
 }
+.card.chatVisible {
+  right: calc(20% + 1rem);
+}
 .card.hide {
   display: none;
 }

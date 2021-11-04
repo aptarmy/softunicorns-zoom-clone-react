@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { socketIO } from '../helpers/socketio';
 import { useSelector, useDispatch } from 'react-redux';
-import { changeCameraMic } from '../store/roomReducer';
-import { inWaitingRoomListVisibility, participantListVisibility } from '../store/uiReducer';
+import { changeCameraMic, markAllChatMessagesRead } from '../store/roomReducer';
+import { inWaitingRoomListVisibility, participantListVisibility, chatVisibility } from '../store/uiReducer';
 import { Row, Col, Menu, Dropdown, Badge, Modal, message } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { AudioFilled, AudioMutedOutlined, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleOutlined, LogoutOutlined } from '@ant-design/icons';
+import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, LogoutOutlined } from '@ant-design/icons';
 import styles from './ControlBar.module.css';
 
 const ControlBar = props => {
@@ -14,11 +13,13 @@ const ControlBar = props => {
   const history = useHistory();
   const user = useSelector(state => state.user);
   const roomData = useSelector(state => state.room.data);
+  const unreadChatMessages = useSelector(state => state.room.chatMessages.filter(message => !message.read));
   const participants = useSelector(state => state.room.participants);
   const participantsAdmitted = participants.filter(item => item.admitted);
   const participantsNotAdmitted = participants.filter(item => !item.admitted);
-  const participantListUI = useSelector(state => state.ui.participantList);
-  const inWaitingRoomListUI = useSelector(state => state.ui.inWaitingRoomList);
+  const participantListVisible = useSelector(state => state.ui.participantList.visibility);
+  const inWaitingRoomListVisible = useSelector(state => state.ui.inWaitingRoomList.visibility);
+  const chatVisible = useSelector(state => state.ui.chat.visibility);
   let { micMuted, cameraMuted } = participants.find(participant => participant.id === user.id).sockets.find(socket => socket.socketId === socketIO.socket.id);
   const [ mediaDevices, setMediaDevices ] = useState([]);
   const { confirm } = Modal;
@@ -68,6 +69,12 @@ const ControlBar = props => {
     socketIO.socket.emit('mediastream-track-update', { micMuted, cameraMuted });
   }
 
+  const handleChatClick = () => {
+    const visibility = !chatVisible;
+    dispatch(chatVisibility(visibility));
+    if(visibility) { dispatch(markAllChatMessagesRead()) }
+  };
+
   return (
     <Row className={styles.controlBar}>
 
@@ -95,9 +102,9 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={styles.col} span={2} offset={5}>
+      <Col className={styles.col} span={2} offset={4}>
         <div className={styles.buttonContainer}>
-          <div className={styles.button} onClick={() => dispatch(participantListVisibility(!participantListUI.visibility))}>
+          <div className={styles.button} onClick={() => dispatch(participantListVisibility(!participantListVisible))}>
           <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Users</div>
           </div>
@@ -106,9 +113,18 @@ const ControlBar = props => {
 
       <Col className={styles.col} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
-          <div className={styles.button} onClick={() => dispatch(inWaitingRoomListVisibility(!inWaitingRoomListUI.visibility))}>
-            <Badge count={participantsNotAdmitted.length}><ClockCircleOutlined className={styles.buttonIcon} /></Badge>
+          <div className={styles.button} onClick={() => dispatch(inWaitingRoomListVisibility(!inWaitingRoomListVisible))}>
+            <Badge count={participantsNotAdmitted.length}><ClockCircleFilled className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Waiting</div>
+          </div>
+        </div>
+      </Col>
+
+      <Col className={styles.col} span={2}>
+        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+          <div className={styles.button} onClick={handleChatClick}>
+            <Badge count={unreadChatMessages.length}><MessageFilled className={styles.buttonIcon} /></Badge>
+            <div className={styles.buttonDesc}>Chat</div>
           </div>
         </div>
       </Col>
