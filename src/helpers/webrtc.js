@@ -11,7 +11,7 @@ export class WebRTC {
 
 	static webRTC;
 
-	constructor({  mediaStreamConstraints }) {
+	constructor({  mediaStreamConstraints, turnCredential }) {
 		this.currentUserId = store.getState().user.id;
 		this.event = new EventEmitter();
 		this.mediaStreamConstraints = mediaStreamConstraints;
@@ -20,6 +20,11 @@ export class WebRTC {
 				{ url: 'stun:stun.l.google.com:19302' },
 				{ url: 'stun:stun1.l.google.com:19302' },
 				{ url: 'stun:stun2.l.google.com:19302' },
+				{
+		      urls: "turn:171.97.6.230:3478",  // A TURN server
+		      username: turnCredential.username,
+		      credential: turnCredential.password
+		    }
 			]
 		};
 
@@ -42,8 +47,8 @@ export class WebRTC {
 		});
 	}
 
-	static getInstance({ mediaStreamConstraints: { audio, video } }) {
-		if(!WebRTC.webRTC) { WebRTC.webRTC = new WebRTC({ mediaStreamConstraints: { audio, video } }) }
+	static getInstance({ mediaStreamConstraints: { audio, video }, turnCredential: { username, password } }) {
+		if(!WebRTC.webRTC) { WebRTC.webRTC = new WebRTC({ mediaStreamConstraints: { audio, video }, turnCredential: { username, password } }) }
 		return WebRTC.webRTC;
 	}
 

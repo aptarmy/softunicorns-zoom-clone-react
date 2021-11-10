@@ -38,6 +38,8 @@ const Room = props => {
     // dispatch updating room
     const participants = roomData.participants.map(({ room_users, ...participant }) => ({ ...participant, sockets: room_users[0].sockets, admitted: room_users[0].admitted }));
     dispatch(updateRoomData({ room: roomData.room, participants }));
+    // turn server credential
+    constraints.turnCredential = roomData.credential;
     // new user in waiting room
     socketIO.socket.on('user-to-admit', user => {
       console.log('user-to-admit:', user);
