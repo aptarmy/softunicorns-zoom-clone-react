@@ -10,7 +10,6 @@ import InWaitingRoomList from '../components/InWaitingRoomList';
 import Chat from '../components/Chat';
 import Loader from '../components/Loader';
 import { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus } from '../store/roomReducer';
-import store from '../store';
 import { socketIO } from '../helpers/socketio';
 import { getRoomAPI } from '../helpers/api'
 import { WebRTC } from '..//helpers/webrtc';
@@ -75,13 +74,6 @@ const Room = props => {
     socketIO.socket.on('mediastream-track-update', socket => {
       webRTC.updateMediaStreamSettings(socket);
       dispatch(updateMicCameraMuteStatus(socket));
-    });
-    // if the room host close the room, leave the room
-    socketIO.socket.on('room-close', () => {
-      const { room, user } = store.getState(); // store.getState() is required as each render is bound to different store state. That means you will get the old state if you try to access state from useSelector()
-      if(room.data.ownerId !== user.id) { message.success('The host has closed the room') }
-      if(room.data.ownerId === user.id) { message.success('You have closed the room') }
-      history.push('/');
     });
     // connect all participants
     window.webRTC = webRTC = WebRTC.getInstance(constraints);

@@ -12,7 +12,6 @@ const ControlBar = props => {
   const dispatch = useDispatch();
   const history = useHistory();
   const user = useSelector(state => state.user);
-  const roomData = useSelector(state => state.room.data);
   const unreadChatMessages = useSelector(state => state.room.chatMessages.filter(message => !message.read));
   const participants = useSelector(state => state.room.participants);
   const participantsAdmitted = participants.filter(item => item.admitted);
@@ -38,17 +37,16 @@ const ControlBar = props => {
   }
 
   const handleLeaveClick = () => {
-    if(roomData.ownerId === user.id) {
-      return confirm({
-        title: 'Do you want to leave and close the session?',
-        icon: <ExclamationCircleOutlined />,
-        content: 'If you close the session, other participants will be redirected to the home page',
-        onOk() { socketIO.socket.emit('room-close') },
-        onCancel() { console.log('Cancel') },
-      });
-    }
-    message.success('You have left the room');
-    history.push('/');
+    confirm({
+      title: 'Do you want to leave the session?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'If you leave the session and no one in the session, this session will be closed.',
+      onOk() {
+        message.success('You have left the room');
+        history.push('/');
+      },
+      onCancel() { console.log('Cancel') },
+    });
   }
 
   useEffect(() => {
