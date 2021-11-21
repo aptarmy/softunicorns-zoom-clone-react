@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import BlankPageTemplate from "../templates/BlankPage";
-import VideoGrid from '../components/VideoGrid';
+import VideoCarousel from '../components/VideoCarousel';
 import ControlBar from "../components/ControlBar";
 import ParticipantList from "../components/ParticipantList";
 import InWaitingRoomList from '../components/InWaitingRoomList';
@@ -145,7 +145,7 @@ const Room = props => {
       {(localStream && room.data && room.participants) ?
       <div className={styles.roomContainer}>
         <div className={`${styles.room} ${chatVisible ? styles.chatVisible : ''}`}>
-          <VideoGrid peerConnections={[localStream, ...peerConnections]}/>
+          <VideoCarousel peerConnections={[localStream, ...peerConnections]}/>
           <ControlBar/>
           <ParticipantList/>
           <InWaitingRoomList/>
