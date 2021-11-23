@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import { message } from 'antd';
+import { logout } from '../store/userReducer';
 import store from '../store';
 
 class SocketIO {
@@ -16,8 +17,13 @@ class SocketIO {
 		});
 		this.socket.on('connect', socket => console.log('webSocket connected to server'));
 		this.socket.on('connect_error', err => {
+			if(err.message === 'AUTHENTICATION_FAILED') {
+				store.dispatch(logout())
+				message.error('Please login again. Your token is expired or invalid');
+				return;
+			}
 			console.error(err);
-			message.error(`WebSocket error: ${err.message}`);
+			message.error(err.message);
 		});
 	}
 	disconnect() {
