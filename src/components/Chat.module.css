@@ -1,12 +1,25 @@
 .chat {
-	width: 20%;
-	height:  100%;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	position: fixed;
 	background-color: white;
-	float: left;
 }
 
 .chat.hide {
 	visibility: hidden;
+}
+
+.chat .chatHeader {
+	text-align: center;
+}
+
+.chat .closeButton {
+	font-size: 1.3rem;
+	position: absolute;
+	right: 0px;
+	top: 0px;
 }
 
 .chat .chatMessages {
@@ -27,4 +40,13 @@
 
 .chat .textInput {
 	height:  32px;
+}
+
+@media screen and (min-width: 768px) {
+	.chat {
+		width: 20%;
+		height:  100%;
+		float: left;
+		position: initial;
+	}
 }

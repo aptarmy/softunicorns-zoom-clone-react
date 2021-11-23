@@ -9,4 +9,11 @@
 }
 .headerBar .siteDescription {
   color: grey;
+  display: none;
+}
+
+@media screen and (min-width: 768px) {
+  .headerBar .siteDescription {
+    display: initial;
+  }
 }

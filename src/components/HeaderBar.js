@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { PageHeader, Button, Menu, Dropdown } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
@@ -23,14 +22,11 @@ const Header = () => {
   if(user.id !== null) {
     const menu = () => (
       <Menu onClick={dropdownMenuOnClick}>
-        <Menu.Item key="room">
-          <Link to="/room">Room</Link>
-        </Menu.Item>
         <Menu.Item key="logout">Logout</Menu.Item>
       </Menu>
     );    
     extra = [
-      <Dropdown key="2" overlay={menu} placement="bottomRight">
+      <Dropdown key="2" overlay={menu} placement="bottomRight" trigger={['click']}>
         <Button type="dashed" ghost icon={<UserOutlined/>}>{user.fName}</Button>
       </Dropdown>,
     ]

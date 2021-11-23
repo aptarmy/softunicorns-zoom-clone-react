@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { changeCameraMic, markAllChatMessagesRead } from '../store/roomReducer';
 import { inWaitingRoomListVisibility, participantListVisibility, chatVisibility } from '../store/uiReducer';
 import { Row, Col, Menu, Dropdown, Badge, Modal, message } from 'antd';
-import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, LogoutOutlined } from '@ant-design/icons';
+import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, LogoutOutlined, MoreOutlined } from '@ant-design/icons';
 import styles from './ControlBar.module.css';
 
 const ControlBar = props => {
@@ -36,6 +36,10 @@ const ControlBar = props => {
       </Menu>
     )
   }
+
+  const handleUserClick = () => dispatch(participantListVisibility(!participantListVisible));
+
+  const handleWaitingClick = () => dispatch(inWaitingRoomListVisibility(!inWaitingRoomListVisible));
 
   const handleLeaveClick = () => {
     confirm({
@@ -79,52 +83,85 @@ const ControlBar = props => {
     message.success(`Copied room ID: ${roomSlug}`);
   }
 
+  const moreDropdownItems = () => {
+    const items = [
+      { key: 'users', value: 'Users' },
+      { key: 'waiting', value: 'Users in waiting room' },
+      { key: 'chat', value: 'Chat' },
+      { key: 'roomId', value: 'Copy Room ID' },
+      { key: 'leave', value: 'Leave the room' },
+    ];
+    const handleClick = item => {
+      if(item.key === 'users')    { handleUserClick() }
+      if(item.key === 'waiting')  { handleWaitingClick() }
+      if(item.key === 'chat')     { handleChatClick() }
+      if(item.key === 'roomId')   { handleCopyRoomIdClick() }
+      if(item.key === 'leave')    { handleLeaveClick() }
+    }
+    return (
+      <Menu onClick={handleClick}>
+        {items.map((item) => <Menu.Item key={item.key}>{item.value}</Menu.Item>)}
+      </Menu>
+    );
+  };
+
   return (
     <Row className={styles.controlBar}>
 
-      <Col className={styles.col} span={2}>
+      <Col className={styles.col} xs={6} md={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('audio')}>
             {micMuted ? <AudioMutedOutlined className={styles.buttonIcon} /> : <AudioFilled className={styles.buttonIcon} />}
             <div className={styles.buttonDesc}>{micMuted ? 'UnMute' : 'Mute'}</div>
           </div>
-          <Dropdown className={styles.button} overlay={dropdown(mediaDevices, 'audioinput')} placement="bottomRight">
+          <Dropdown className={styles.button} overlay={dropdown(mediaDevices, 'audioinput')} placement="bottomRight" trigger={['click']}>
             <UpOutlined className={styles.buttonMore} />
           </Dropdown>
         </div>
       </Col>
 
-      <Col className={styles.col} span={2}>
+      <Col className={styles.col} xs={6} md={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('camera')}>
             {cameraMuted ? <EyeInvisibleOutlined className={styles.buttonIcon} /> : <VideoCameraFilled className={styles.buttonIcon} />}
             <div className={styles.buttonDesc}>{cameraMuted ? 'Start' : 'Stop'}</div>
           </div>
-          <Dropdown className={styles.button} overlay={dropdown(mediaDevices, 'videoinput')} placement="bottomRight">
+          <Dropdown className={styles.button} overlay={dropdown(mediaDevices, 'videoinput')} placement="bottomRight" trigger={['click']}>
             <UpOutlined className={styles.buttonMore} />
           </Dropdown>
         </div>
       </Col>
 
-      <Col className={styles.col} span={2} offset={3}>
+      <Col className={`${styles.col} ${styles.hideOnDesktop}`} xs={{span: 5, offset: 7}}>
         <div className={styles.buttonContainer}>
-          <div className={styles.button} onClick={() => dispatch(participantListVisibility(!participantListVisible))}>
+          <Dropdown overlay={moreDropdownItems()} placement="bottomRight" trigger={['click']}>
+            <div className={styles.button}>
+              <MoreOutlined className={styles.buttonIcon} />
+              <div className={styles.buttonDesc}>More</div>
+            </div>
+          </Dropdown>
+        </div>
+      </Col>
+
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2} offset={3}>
+        <div className={styles.buttonContainer}>
+          <div className={styles.button} onClick={handleUserClick}>
           <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Users</div>
           </div>
         </div>
       </Col>
 
-      <Col className={styles.col} span={2}>
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
-          <div className={styles.button} onClick={() => dispatch(inWaitingRoomListVisibility(!inWaitingRoomListVisible))}>
+          <div className={styles.button} onClick={handleWaitingClick}>
             <Badge count={participantsNotAdmitted.length}><ClockCircleFilled className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Waiting</div>
           </div>
         </div>
       </Col>
 
-      <Col className={styles.col} span={2}>
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleChatClick}>
             <Badge count={unreadChatMessages.length}><MessageFilled className={styles.buttonIcon} /></Badge>
@@ -133,7 +170,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={styles.col} span={2}>
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleCopyRoomIdClick}>
             <CopyOutlined className={styles.buttonIcon} />
@@ -142,7 +179,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={styles.col} span={2}>
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleLeaveClick}>
             <LogoutOutlined className={styles.buttonIcon} />

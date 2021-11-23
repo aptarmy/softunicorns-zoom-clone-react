@@ -23,6 +23,9 @@
 .siteContent .card .search input {
   padding: 6.5px 1.3rem;
 }
+.siteContent .card .search :global(.ant-input-group-addon) {
+  display: none;
+}
 
 .siteContent .card .divider {
   color: rgb(255 255 255);
@@ -45,3 +48,9 @@
 }
 .siteContent .card .divider::before { left: 0px; }
 .siteContent .card .divider::after  { right: 0px; }
+
+@media screen and (min-width: 768px) {
+  .siteContent .card .search :global(.ant-input-group-addon) {
+    display: table-cell;
+  }
+}

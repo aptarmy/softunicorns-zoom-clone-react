@@ -27,6 +27,10 @@
   color: white;
 }
 
+.controlBar .buttonContainer .button .buttonDesc {
+  white-space: nowrap;
+}
+
 .controlBar .buttonContainer .buttonIcon {
   font-size: 1.5rem;
   color: #bdbdbd;
@@ -34,9 +38,25 @@
 }
 .controlBar .buttonContainer .buttonMore {
   position: absolute;
-  right: 0px;
+  left: calc(50% + 1rem);
   top: 0px;
   padding-top: calc(70px/2 - 0.5rem);
   height: 100%;
   font-size: 1rem;
+}
+
+/* Responsive */
+.hideOnMobile {
+  display: none;
+}
+.hideOnDesktop {
+  display: block;
+}
+@media only screen and (min-width: 768px) {
+  .hideOnMobile {
+    display: block;
+  }
+  .hideOnDesktop {
+    display: none;
+  }
 }

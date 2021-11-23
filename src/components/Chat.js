@@ -1,8 +1,9 @@
-import { SendOutlined } from '@ant-design/icons';
+import { SendOutlined, CloseCircleFilled } from '@ant-design/icons';
 import { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addChatMessage } from '../store/roomReducer'
-import { Input, Comment, List } from 'antd';
+import { chatVisibility } from '../store/uiReducer';
+import { Input, Comment, List, Button } from 'antd';
 import moment from 'moment';
 import { WebRTC } from '../helpers/webrtc';
 import styles from './Chat.module.css';
@@ -35,9 +36,16 @@ const Chat = (props) => {
 		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 	}, [ chatMessages ]);
 
+	const listHeader = (
+		<div>
+			<Button type="text" shape="round" icon={<CloseCircleFilled />} size="small" onClick={() => dispatch(chatVisibility(false))} className={styles.closeButton} />
+			<div className={styles.chatHeader}>Chat</div>
+		</div>
+	);
+
 	return (
 		<div ref={listContainerRef} className={`${styles.chat} ${chatUI.visibility ? '' : styles.hide}`}>
-			<List className={styles.chatMessages} header={<div style={{textAlign: 'center'}}>Chat</div>} itemLayout="horizontal" dataSource={messages} renderItem={message => (
+			<List className={styles.chatMessages} header={listHeader} itemLayout="horizontal" dataSource={messages} renderItem={message => (
 				<li>
 					<Comment author={`${message.fName} ${message.lName}`} avatar={message.imgUrl} content={message.message} datetime={moment(message.timestamp).format('HH:ss:mm - D MMMM')} />
 				</li>

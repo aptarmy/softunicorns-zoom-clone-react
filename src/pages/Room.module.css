@@ -13,7 +13,10 @@
   height: 100%;
   width: 100%;
 }
-.room.chatVisible {
-  width: 80%;
-  float: left;
+
+@media screen and (min-width: 768px) {
+  .room.chatVisible {
+    width: 80%;
+    float: left;
+  }
 }
