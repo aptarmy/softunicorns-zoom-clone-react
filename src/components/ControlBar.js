@@ -5,13 +5,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { changeCameraMic, markAllChatMessagesRead } from '../store/roomReducer';
 import { inWaitingRoomListVisibility, participantListVisibility, chatVisibility } from '../store/uiReducer';
 import { Row, Col, Menu, Dropdown, Badge, Modal, message } from 'antd';
-import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, LogoutOutlined } from '@ant-design/icons';
+import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, LogoutOutlined } from '@ant-design/icons';
 import styles from './ControlBar.module.css';
 
 const ControlBar = props => {
   const dispatch = useDispatch();
   const history = useHistory();
   const user = useSelector(state => state.user);
+  const roomSlug = useSelector(state => state.room.data.slug);
   const unreadChatMessages = useSelector(state => state.room.chatMessages.filter(message => !message.read));
   const participants = useSelector(state => state.room.participants);
   const participantsAdmitted = participants.filter(item => item.admitted);
@@ -73,6 +74,11 @@ const ControlBar = props => {
     if(visibility) { dispatch(markAllChatMessagesRead()) }
   };
 
+  const handleCopyRoomIdClick = () => {
+    navigator.clipboard.writeText(roomSlug);
+    message.success(`Copied room ID: ${roomSlug}`);
+  }
+
   return (
     <Row className={styles.controlBar}>
 
@@ -100,7 +106,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={styles.col} span={2} offset={4}>
+      <Col className={styles.col} span={2} offset={3}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => dispatch(participantListVisibility(!participantListVisible))}>
           <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
@@ -123,6 +129,15 @@ const ControlBar = props => {
           <div className={styles.button} onClick={handleChatClick}>
             <Badge count={unreadChatMessages.length}><MessageFilled className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Chat</div>
+          </div>
+        </div>
+      </Col>
+
+      <Col className={styles.col} span={2}>
+        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+          <div className={styles.button} onClick={handleCopyRoomIdClick}>
+            <CopyOutlined className={styles.buttonIcon} />
+            <div className={styles.buttonDesc}>Room Id</div>
           </div>
         </div>
       </Col>
