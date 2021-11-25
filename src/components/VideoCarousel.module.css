@@ -1,0 +1,11 @@
+.carousel {
+	height: calc(100% - 70px);
+}
+.carousel :global(.ant-carousel),
+.carousel :global(.slick-slider),
+.carousel :global(.slick-list),
+.carousel :global(.slick-track),
+.carousel :global(.slick-slide),
+.carousel :global(.slick-slide) div {
+	height: 100%;
+}

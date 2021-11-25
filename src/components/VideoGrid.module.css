@@ -18,5 +18,5 @@
 }
 
 .videoGrid {
-  height: calc(100vh - 70px);
+  height: 100%;
 }

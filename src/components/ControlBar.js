@@ -108,7 +108,7 @@ const ControlBar = props => {
   return (
     <Row className={styles.controlBar}>
 
-      <Col className={styles.col} xs={6} md={2}>
+      <Col className={styles.col} xs={8} md={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('audio')}>
             {micMuted ? <AudioMutedOutlined className={styles.buttonIcon} /> : <AudioFilled className={styles.buttonIcon} />}
@@ -120,7 +120,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={styles.col} xs={6} md={2}>
+      <Col className={styles.col} xs={8} md={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('camera')}>
             {cameraMuted ? <EyeInvisibleOutlined className={styles.buttonIcon} /> : <VideoCameraFilled className={styles.buttonIcon} />}
@@ -132,7 +132,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={`${styles.col} ${styles.hideOnDesktop}`} xs={{span: 5, offset: 7}}>
+      <Col className={`${styles.col} ${styles.hideOnDesktop}`} xs={{span: 8, offset: 0}}>
         <div className={styles.buttonContainer}>
           <Dropdown overlay={moreDropdownItems()} placement="bottomRight" trigger={['click']}>
             <div className={styles.button}>
