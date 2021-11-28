@@ -161,20 +161,33 @@ export class WebRTC {
 		}
 	}
 
-	updateMediaStreamSettings(socket) {
+	async updateMediaStreamSettings(socket) {
 		if(socket.socketId !== socketIO.socket.id) { return }
 		const { cameraMuted, micMuted } = socket;
-		this.stream.getTracks().forEach(track => {
-			if(track.kind==='video' &&  cameraMuted) { track.enabled = false }
-			if(track.kind==='video' && !cameraMuted) { track.enabled = true }
+		const stream = await navigator.mediaDevices.getUserMedia(this.mediaStreamConstraints);
+		this.stream.getTracks().forEach(oldTrack => {
+			stream.getTracks().forEach(newTrack => {
+				if(oldTrack.kind !== newTrack.kind) { return }
+				if((oldTrack.kind === 'video' && cameraMuted) || (oldTrack.kind === 'audio' && micMuted)) {
+					oldTrack.stop();
+					newTrack.stop();
+				}
+				if((oldTrack.kind === 'video' && !cameraMuted) || (oldTrack.kind === 'audio' && !micMuted)) {
+					oldTrack.stop();
+					this.stream.removeTrack(oldTrack);
+					this.stream.addTrack(newTrack);
+					this.peerConnections.forEach(peerConnection => {
+						const sender = peerConnection.pc.getSenders().find(sender => sender.track.kind === oldTrack.kind);
+						sender.replaceTrack(newTrack);
+					});
+				}
+			});
 		});
-		this.stream.getTracks().forEach(track => {
-			if(track.kind==='audio' &&  micMuted) { track.enabled = false }
-			if(track.kind==='audio' && !micMuted) { track.enabled = true }
-		});
+		this.event.emit('local-stream', this.stream);
 	}
 
 	async changeMediaStreamTrack({ mediaStreamConstraints }) {
+		this.mediaStreamConstraints = mediaStreamConstraints;
 		console.log('changeMediaStreamTrack called');
 		// replace track of local stream
 		const newTracks = [];
