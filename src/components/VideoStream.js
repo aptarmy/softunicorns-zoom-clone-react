@@ -10,7 +10,7 @@ const VideoStream = props => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ props.stream ]);
   return (
-    <div className={`${styles.videoStreamContainer} ${props.videoClassName ? styles[props.videoClassName] : ''}`}>
+    <div className={`${props.className} ${styles.videoStreamContainer} ${props.videoClassName ? styles[props.videoClassName] : ''}`}>
       <span className={styles.nameText}>
         {props.micMuted ? <AudioMutedOutlined className={styles.micIcon} /> : <AudioOutlined className={styles.micIcon} />}
         {props.nameText}

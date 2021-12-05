@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { changeCameraMic, markAllChatMessagesRead } from '../store/roomReducer';
 import { inWaitingRoomListVisibility, participantListVisibility, chatVisibility } from '../store/uiReducer';
 import { Row, Col, Menu, Dropdown, Badge, Modal, message } from 'antd';
-import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, LogoutOutlined, MoreOutlined } from '@ant-design/icons';
+import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, FundProjectionScreenOutlined, FundViewOutlined, LogoutOutlined, MoreOutlined } from '@ant-design/icons';
 import styles from './ControlBar.module.css';
 
 const ControlBar = props => {
@@ -20,6 +20,7 @@ const ControlBar = props => {
   const participantListVisible = useSelector(state => state.ui.participantList.visibility);
   const inWaitingRoomListVisible = useSelector(state => state.ui.inWaitingRoomList.visibility);
   const chatVisible = useSelector(state => state.ui.chat.visibility);
+  const sharingScreen = useSelector(state => state.room.sharingScreen);
   let { micMuted, cameraMuted } = participants.find(participant => participant.id === user.id).sockets.find(socket => socket.socketId === socketIO.socket.id);
   const [ mediaDevices, setMediaDevices ] = useState([]);
   const { confirm } = Modal;
@@ -83,6 +84,11 @@ const ControlBar = props => {
     message.success(`Copied room ID: ${roomSlug}`);
   }
 
+  const handleScreenShareClick = () => {
+    if(!sharingScreen) { socketIO.socket.emit('start-sharing-screen') }
+    if(sharingScreen)  { socketIO.socket.emit('stop-sharing-screen') }
+  }
+
   const moreDropdownItems = () => {
     const items = [
       { key: 'users', value: 'Users' },
@@ -143,7 +149,7 @@ const ControlBar = props => {
         </div>
       </Col>
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2} offset={3}>
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2} offset={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={handleUserClick}>
           <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
@@ -178,6 +184,17 @@ const ControlBar = props => {
           </div>
         </div>
       </Col>
+
+      {(!sharingScreen || sharingScreen.socketId === socketIO.socket.id) ?
+      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
+        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+          <div className={styles.button} onClick={handleScreenShareClick}>
+            { sharingScreen ? <FundProjectionScreenOutlined className={styles.buttonIcon} /> : <FundViewOutlined className={styles.buttonIcon} /> }
+            <div className={styles.buttonDesc}>{ sharingScreen ? 'Stop' : 'Share Screen' }</div>
+          </div>
+        </div>
+      </Col>
+      : null}
 
       <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
         <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>

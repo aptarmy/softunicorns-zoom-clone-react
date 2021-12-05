@@ -6,6 +6,7 @@ export const roomReducer = createSlice({
     data: null, // { ownerId: Integer, slug: String }
     participants: null, // [ { id: Integer, fName: String, lName: String, email: String, sockets: [{socketId: String, micMuted: Boolean, cameraMuted: Boolean}], admitted: Boolean } ]
     chatMessages: [], // [{ userId: Integer, message: String, timestamp: Integer, read: Boolean }]
+    sharingScreen: null, // { userId: Integer, socketId: String }
     settings: { micDeviceId: 'default', cameraDeviceId: 'default' }
   },
   reducers: {
@@ -45,11 +46,17 @@ export const roomReducer = createSlice({
     markAllChatMessagesRead(state) {
       const unreadMessages = state.chatMessages.filter(message => !message.read);
       unreadMessages.forEach(message => message.read = true);
+    },
+    userShareScreen(state, { payload: { userId, socketId } }) {
+      state.sharingScreen = { userId, socketId }
+    },
+    userStopSharingScreen(state) {
+      state.sharingScreen = null;
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus, changeCameraMic, addChatMessage, markAllChatMessagesRead } = roomReducer.actions
+export const { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus, changeCameraMic, addChatMessage, markAllChatMessagesRead, userShareScreen, userStopSharingScreen } = roomReducer.actions
 
 export default roomReducer.reducer

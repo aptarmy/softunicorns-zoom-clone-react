@@ -9,7 +9,7 @@ import ParticipantList from "../components/ParticipantList";
 import InWaitingRoomList from '../components/InWaitingRoomList';
 import Chat from '../components/Chat';
 import Loader from '../components/Loader';
-import { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus } from '../store/roomReducer';
+import { updateRoomData, clearRoomData, upsertUserToRoom, updateMicCameraMuteStatus, userShareScreen, userStopSharingScreen } from '../store/roomReducer';
 import { socketIO } from '../helpers/socketio';
 import { getRoomAPI } from '../helpers/api'
 import { WebRTC } from '..//helpers/webrtc';
@@ -25,13 +25,17 @@ const Room = props => {
   const history = useHistory();
   const [ peerConnections, setPeerConnections ] = useState([]);
   const [ localStream, setLocalStream ] = useState();
+  const sharingScreen = useSelector(state => state.room.sharingScreen);
+  const [ sharingScreenStream, setSharingScreenStream ] = useState(null);
   const constraints = { mediaStreamConstraints: { audio: true, video: true } };
-  const handleStreamUpdate = ({ socketId }) => {
-    console.log('got notified stream updated');
-    setPeerConnections([...webRTC.peerConnections]);
+  const handleStreamUpdate = ({ userId, socketId, stream, type }) => {
+    console.log('got notified stream updated:', { userId, socketId, stream, type });
+    if(type === 'CAMERA')         { setPeerConnections([...webRTC.peerConnections]) }
+    if(type === 'SCREEN_SHARING') { setSharingScreenStream({ userId, socketId, stream }) }
   }
-  const handleLocalStreamAvailable = stream => {
-    setLocalStream({ userId: user.id, socketId: socketIO.socket.id, stream });
+  const handleLocalStreamAvailable = ({ stream, type }) => {
+    if(type === 'CAMERA') { setLocalStream({ userId: user.id, socketId: socketIO.socket.id, stream }) }
+    if(type === 'SCREEN_SHARING') { setSharingScreenStream({ userId: user.id, socketId: socketIO.socket.id, stream }) }
   }
   const start = async roomData => {
     // dispatch updating room
@@ -74,6 +78,24 @@ const Room = props => {
     socketIO.socket.on('mediastream-track-update', socket => {
       webRTC.updateMediaStreamSettings(socket);
       dispatch(updateMicCameraMuteStatus(socket));
+    });
+    // start sharing screen
+    socketIO.socket.on('start-sharing-screen', ({ userId, socketId }) => {
+      // if someone or current user is sharing the screen, do nohting
+      if(webRTC.screenSharingStream || webRTC.shareScreenPeerConnection) { return }
+      dispatch(userShareScreen({ userId, socketId }));
+      if(socketIO.socket.id === socketId) {
+        const stopSharingCallback = () => {
+          socketIO.socket.emit('stop-sharing-screen');
+        }
+        webRTC.shareScreen(stopSharingCallback);
+      }
+    });
+    // stop sharing screen
+    socketIO.socket.on('stop-sharing-screen', () => {
+      dispatch(userStopSharingScreen());
+      setSharingScreenStream(null);
+      webRTC.stopSharingScreen();
     });
     // connect all participants
     window.webRTC = webRTC = WebRTC.getInstance(constraints);
@@ -137,7 +159,7 @@ const Room = props => {
       {(localStream && room.data && room.participants) ?
       <div className={styles.roomContainer}>
         <div className={`${styles.room} ${chatVisible ? styles.chatVisible : ''}`}>
-          <VideoCarousel peerConnections={[localStream, ...peerConnections]}/>
+          <VideoCarousel peerConnections={[localStream, ...peerConnections]} sharingScreen={sharingScreen} sharingScreenStream={sharingScreenStream}/>
           <ControlBar/>
           <ParticipantList/>
           <InWaitingRoomList/>

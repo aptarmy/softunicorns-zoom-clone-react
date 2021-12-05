@@ -1,0 +1,20 @@
+.sharingScreenContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.sharingScreen {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.videoStream {
+  position: absolute;
+  width: 200px;
+  height: auto !important;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+}
