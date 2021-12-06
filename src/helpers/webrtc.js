@@ -111,14 +111,6 @@ export class WebRTC {
 					const peerConnection = this.peerConnections.find(p => p.socketId === socketId);
 					this.registerPeerConnectionEvents({ peerConnection });
 					this.setupDataChannelAnswerSide(peerConnection);
-					// for screen sharing presenter
-					if(this.screenSharingStream) {
-						const shareScreenPeerConnection = { userId: participant.id, socketId, pc: new RTCPeerConnection(this.configuration) };
-						this.shareScreenPeerConnections.push(shareScreenPeerConnection);
-						this.registerPeerConnectionEvents({ peerConnection: shareScreenPeerConnection, isScreenSharing: true });
-						this.screenSharingStream.getTracks().forEach((track) => shareScreenPeerConnection.pc.addTrack(track, this.screenSharingStream));
-						this.startWebRTCSignaling({ peerConnection: shareScreenPeerConnection, isScreenSharing: true });
-					}
 				}
 			});
 		}
@@ -167,6 +159,8 @@ export class WebRTC {
 			if(!participants[participantIndex].admitted) { return console.log('user is not admitted to the room. RTCConnection refused'); }
 			// set variables
 			let rtcPeerConnection;
+			const userId 										= participants[participantIndex].id;
+			const socketId 									= fromSocketId;
 			const isCameraChat 							= !isScreenSharing;
 			const isScreenSharingPresenter 	= isScreenSharing && !!this.screenSharingStream;
 			const isScreenSharingReceiver		= isScreenSharing && !this.screenSharingStream;
@@ -177,8 +171,6 @@ export class WebRTC {
 			// for screen sharing receiver
 			if(isScreenSharingReceiver)  {
 				if(!this.shareScreenPeerConnection) {
-					const userId = participants[participantIndex].id;
-					const socketId = fromSocketId;
 					this.shareScreenPeerConnection = { userId, socketId, pc: new RTCPeerConnection(this.configuration) };
 					this.registerPeerConnectionEvents({ peerConnection: this.shareScreenPeerConnection, isScreenSharing: true });
 					store.dispatch(userShareScreen({ userId, socketId }));
@@ -200,6 +192,8 @@ export class WebRTC {
 					}
 		      await rtcPeerConnection.pc.setLocalDescription(await rtcPeerConnection.pc.createAnswer());
 		      socketIO.socket.emit('webrtc-signaling', { toSocketId: fromSocketId, description: rtcPeerConnection.pc.localDescription, isScreenSharing });
+					// if this user is sharing screen, create new RTCPeerConnection
+					this.startShareScreenConnection({ userId, socketId });
 		    } else if (description.type === 'answer') {
 		    	console.log('got answer: ', description);
 		      await rtcPeerConnection.pc.setRemoteDescription(description);
@@ -279,6 +273,17 @@ export class WebRTC {
 		});
 	}
 
+	// create new shareScreenPeerConnection once they signal this user
+	startShareScreenConnection({ userId, socketId }) {
+		if(!this.screenSharingStream) { return }
+		if(this.shareScreenPeerConnections.find(p => p.socketId === socketId)) { return }
+		const shareScreenPeerConnection = { userId, socketId, pc: new RTCPeerConnection(this.configuration) };
+		this.shareScreenPeerConnections.push(shareScreenPeerConnection);
+		this.registerPeerConnectionEvents({ peerConnection: shareScreenPeerConnection, isScreenSharing: true });
+		this.screenSharingStream.getTracks().forEach((track) => shareScreenPeerConnection.pc.addTrack(track, this.screenSharingStream));
+		this.startWebRTCSignaling({ peerConnection: shareScreenPeerConnection, isScreenSharing: true });
+	}
+
 	async shareScreen(stopSharingCallback) {
 		try {
 			window.screenSharingStream = this.screenSharingStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
@@ -287,7 +292,7 @@ export class WebRTC {
 			stopSharingCallback();
 			return;
 		}
-		this.shareScreenPeerConnections = this.peerConnections.filter(p => p.admitted).map(p => ({ userId: p.userId, socketId: p.socketId, pc: new RTCPeerConnection(this.configuration) }));
+		this.shareScreenPeerConnections = this.peerConnections.map(p => ({ userId: p.userId, socketId: p.socketId, pc: new RTCPeerConnection(this.configuration) }));
 		this.shareScreenPeerConnections.forEach(peerConnection => {
 			this.registerPeerConnectionEvents({ peerConnection, isScreenSharing: true });
 			this.screenSharingStream.getTracks().forEach((track) => peerConnection.pc.addTrack(track, this.screenSharingStream));

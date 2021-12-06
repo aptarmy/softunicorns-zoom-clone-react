@@ -3,9 +3,9 @@
 }
 .rowPaddingLR { width: calc(16/9*(100vh - 70px)); margin: auto; }
 .row1 .col { height: 100%; }
-.row2 .col { height: 50%; }
-.row3 .col { height: 33.33%; }
-.row4 .col { height: 25%; }
+.row2 .col { height: 50% !important; }
+.row3 .col { height: 33.33% !important; }
+.row4 .col { height: 25% !important; }
 .row1 .col video { object-fit: contain; }
 .row2 .col video { object-fit: cover; }
 .row3 .col video { object-fit: cover; }

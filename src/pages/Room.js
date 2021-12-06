@@ -70,6 +70,10 @@ const Room = props => {
       console.log('user-left (user, socketId):', user, socketId);
       const { room_users, ...data } = user;
       const leftUser = ({ ...data, sockets: room_users[0].sockets, admitted: room_users[0].admitted });
+      // set sharing screen state if presenter left the room
+      if(webRTC.shareScreenPeerConnection && webRTC.shareScreenPeerConnection.socketId === socketId) {
+        dispatch(userStopSharingScreen());
+      }
       webRTC.participantChanges(leftUser, 'REMOVE', socketId);
       setPeerConnections([...webRTC.peerConnections]);
       dispatch(upsertUserToRoom(leftUser));
