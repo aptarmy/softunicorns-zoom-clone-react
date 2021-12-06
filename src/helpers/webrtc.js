@@ -214,38 +214,49 @@ export class WebRTC {
 		}
 	}
 
+	// Muted / Unmuted
 	async updateMediaStreamSettings(socket) {
 		if(socket.socketId !== socketIO.socket.id) { return }
 		const { cameraMuted, micMuted } = socket;
-		const stream = await navigator.mediaDevices.getUserMedia(this.mediaStreamConstraints);
+		const mediaStreamConstraints = { audio: !micMuted && this.mediaStreamConstraints.audio, video: !cameraMuted && this.mediaStreamConstraints.video };
+		const stream = cameraMuted && micMuted ? null : await navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
 		this.stream.getTracks().forEach(oldTrack => {
+			// stop track if device is muted
+			if((oldTrack.kind === 'video' && cameraMuted) || (oldTrack.kind === 'audio' && micMuted)) {
+				oldTrack.stop();
+				return;
+			}
+			// replace tracks if device is not muted
 			stream.getTracks().forEach(newTrack => {
 				if(oldTrack.kind !== newTrack.kind) { return }
-				if((oldTrack.kind === 'video' && cameraMuted) || (oldTrack.kind === 'audio' && micMuted)) {
-					oldTrack.stop();
-					newTrack.stop();
-				}
-				if((oldTrack.kind === 'video' && !cameraMuted) || (oldTrack.kind === 'audio' && !micMuted)) {
-					oldTrack.stop();
-					this.stream.removeTrack(oldTrack);
-					this.stream.addTrack(newTrack);
-					this.peerConnections.forEach(peerConnection => {
-						const sender = peerConnection.pc.getSenders().find(sender => sender.track.kind === oldTrack.kind);
-						sender.replaceTrack(newTrack);
-					});
-				}
+				oldTrack.stop();
+				this.stream.removeTrack(oldTrack);
+				this.stream.addTrack(newTrack);
+				// replace peerConnection track
+				this.peerConnections.forEach(peerConnection => {
+					const sender = peerConnection.pc.getSenders().find(sender => sender.track.kind === oldTrack.kind);
+					sender.replaceTrack(newTrack);
+				});
 			});
 		});
 		this.event.emit('local-stream', this.stream);
 	}
 
+	// Media devices
 	async changeMediaStreamTrack({ mediaStreamConstraints }) {
 		this.mediaStreamConstraints = mediaStreamConstraints;
 		console.log('changeMediaStreamTrack called');
+		// get current mute/unmute state
+		const user = store.getState().user;
+		const { cameraMuted, micMuted } = store.getState().room.participants.find(p => p.id === user.id).sockets.find(s => s.socketId === socketIO.socket.id);
+		mediaStreamConstraints = { audio: !micMuted && mediaStreamConstraints.audio, video: !cameraMuted && mediaStreamConstraints.video };
 		// replace track of local stream
+		const stream = cameraMuted && micMuted ? null : await navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
 		const newTracks = [];
-		const stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints);
 		this.stream.getTracks().forEach(oldTrack => {
+			// skip if device is muted
+			if((oldTrack.kind === 'video' && cameraMuted) || (oldTrack.kind === 'audio' && micMuted)) { return }
+			// replace tracks
 			stream.getTracks().forEach(newTrack => {
 				if(oldTrack.kind !== newTrack.kind) { return }
 				if(isEqual(oldTrack.getConstraints(), newTrack.getConstraints())) { return newTrack.stop(); }
@@ -276,7 +287,7 @@ export class WebRTC {
 			stopSharingCallback();
 			return;
 		}
-		this.shareScreenPeerConnections = this.peerConnections.map(p => ({ userId: p.userId, socketId: p.socketId, pc: new RTCPeerConnection(this.configuration) }));
+		this.shareScreenPeerConnections = this.peerConnections.filter(p => p.admitted).map(p => ({ userId: p.userId, socketId: p.socketId, pc: new RTCPeerConnection(this.configuration) }));
 		this.shareScreenPeerConnections.forEach(peerConnection => {
 			this.registerPeerConnectionEvents({ peerConnection, isScreenSharing: true });
 			this.screenSharingStream.getTracks().forEach((track) => peerConnection.pc.addTrack(track, this.screenSharingStream));
