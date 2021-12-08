@@ -1,5 +1,6 @@
 .row {
   height: 100%;
+  max-width: 100%;
 }
 .rowPaddingLR { width: calc(16/9*(100vh - 70px)); margin: auto; }
 .row1 .col { height: 100%; }
