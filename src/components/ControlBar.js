@@ -4,7 +4,7 @@ import { socketIO } from '../helpers/socketio';
 import { useSelector, useDispatch } from 'react-redux';
 import { changeCameraMic, markAllChatMessagesRead } from '../store/roomReducer';
 import { inWaitingRoomListVisibility, participantListVisibility, chatVisibility } from '../store/uiReducer';
-import { Row, Col, Menu, Dropdown, Badge, Modal, message } from 'antd';
+import { Menu, Dropdown, Badge, Modal, message } from 'antd';
 import { AudioFilled, AudioMutedOutlined, ExclamationCircleOutlined, MessageFilled, UpOutlined, VideoCameraFilled, EyeInvisibleOutlined, TeamOutlined, ClockCircleFilled, CopyOutlined, FundProjectionScreenOutlined, FundViewOutlined, LogoutOutlined, MoreOutlined } from '@ant-design/icons';
 import styles from './ControlBar.module.css';
 

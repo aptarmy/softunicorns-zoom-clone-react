@@ -13,6 +13,7 @@
   border-radius: 0px 5px 0px 0px;
   color: white;
   padding: 0.1rem 0.3rem;
+  z-index: 10;
 }
 .videoStreamContainer .micIcon {
   margin: 0 0.3rem 0 0;
