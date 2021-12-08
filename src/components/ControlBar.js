@@ -119,9 +119,9 @@ const ControlBar = props => {
   };
 
   return (
-    <Row className={styles.controlBar}>
+    <div className={`${styles.controlBar} ${styles.clearFix}`}>
 
-      <Col className={styles.col} xs={8} md={2}>
+      <div className={styles.inputDeviceButtons}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('audio')}>
             {micMuted ? <AudioMutedOutlined className={styles.buttonIcon} /> : <AudioFilled className={styles.buttonIcon} />}
@@ -131,9 +131,7 @@ const ControlBar = props => {
             <UpOutlined className={styles.buttonMore} />
           </Dropdown>
         </div>
-      </Col>
 
-      <Col className={styles.col} xs={8} md={2}>
         <div className={styles.buttonContainer}>
           <div className={styles.button} onClick={() => handleMuteChanges('camera')}>
             {cameraMuted ? <EyeInvisibleOutlined className={styles.buttonIcon} /> : <VideoCameraFilled className={styles.buttonIcon} />}
@@ -143,76 +141,66 @@ const ControlBar = props => {
             <UpOutlined className={styles.buttonMore} />
           </Dropdown>
         </div>
-      </Col>
+      </div>
 
-      <Col className={`${styles.col} ${styles.hideOnDesktop}`} xs={{span: 8, offset: 0}}>
-        <div className={styles.buttonContainer}>
-          <Dropdown overlay={moreDropdownItems()} placement="bottomRight" trigger={['click']}>
-            <div className={styles.button}>
-              <MoreOutlined className={styles.buttonIcon} />
-              <div className={styles.buttonDesc}>More</div>
-            </div>
-          </Dropdown>
-        </div>
-      </Col>
+      <div className={styles.controlButtons}>
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2} offset={2}>
-        <div className={styles.buttonContainer}>
+        <div className={`${styles.buttonContainer} ${styles.hideOnMobile}`}>
           <div className={styles.button} onClick={handleUserClick}>
           <Badge count={participantsAdmitted.length}><TeamOutlined className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Users</div>
           </div>
         </div>
-      </Col>
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
-        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+        <div className={`${styles.buttonContainer} ${styles.hideOnMobile} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleWaitingClick}>
             <Badge count={participantsNotAdmitted.length}><ClockCircleFilled className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Waiting</div>
           </div>
         </div>
-      </Col>
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
-        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+        <div className={`${styles.buttonContainer} ${styles.hideOnMobile} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleChatClick}>
             <Badge count={unreadChatMessages.length}><MessageFilled className={styles.buttonIcon} /></Badge>
             <div className={styles.buttonDesc}>Chat</div>
           </div>
         </div>
-      </Col>
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
-        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+        <div className={`${styles.buttonContainer} ${styles.hideOnMobile} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleCopyRoomIdClick}>
             <CopyOutlined className={styles.buttonIcon} />
             <div className={styles.buttonDesc}>Room Id</div>
           </div>
         </div>
-      </Col>
 
-      {(!sharingScreen || sharingScreen.socketId === socketIO.socket.id) ?
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
-        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
-          <div className={styles.button} onClick={handleScreenShareClick}>
-            { sharingScreen ? <FundProjectionScreenOutlined className={styles.buttonIcon} /> : <FundViewOutlined className={styles.buttonIcon} /> }
-            <div className={styles.buttonDesc}>{ sharingScreen ? 'Stop' : 'Share Screen' }</div>
+        {(!sharingScreen || sharingScreen.socketId === socketIO.socket.id) ?
+          <div className={`${styles.buttonContainer} ${styles.hideOnMobile} ${styles.noMoreBtn}`}>
+            <div className={styles.button} onClick={handleScreenShareClick}>
+              { sharingScreen ? <FundProjectionScreenOutlined className={styles.buttonIcon} /> : <FundViewOutlined className={styles.buttonIcon} /> }
+              <div className={styles.buttonDesc}>{ sharingScreen ? 'Stop' : 'Share Screen' }</div>
+            </div>
           </div>
-        </div>
-      </Col>
-      : null}
+        : null}
 
-      <Col className={`${styles.col} ${styles.hideOnMobile}`} span={2}>
-        <div className={`${styles.buttonContainer} ${styles.noMoreBtn}`}>
+        <div className={`${styles.buttonContainer} ${styles.hideOnMobile} ${styles.noMoreBtn}`}>
           <div className={styles.button} onClick={handleLeaveClick}>
             <LogoutOutlined className={styles.buttonIcon} />
             <div className={styles.buttonDesc}>Leave</div>
           </div>
         </div>
-      </Col>
 
-    </Row>
+        <div className={`${styles.buttonContainer} ${styles.hideOnDesktop} ${styles.moreDropdown}`}>
+        <Dropdown overlay={moreDropdownItems()} placement="bottomRight" trigger={['click']}>
+          <div className={styles.button}>
+            <MoreOutlined className={styles.buttonIcon} />
+            <div className={styles.buttonDesc}>More</div>
+          </div>
+        </Dropdown>
+      </div>
+
+      </div>
+
+    </div>
   );
 }
 
