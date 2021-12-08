@@ -98,11 +98,18 @@ const ControlBar = props => {
       { key: 'leave', value: 'Leave the room' },
     ];
     const handleClick = item => {
-      if(item.key === 'users')    { handleUserClick() }
-      if(item.key === 'waiting')  { handleWaitingClick() }
-      if(item.key === 'chat')     { handleChatClick() }
-      if(item.key === 'roomId')   { handleCopyRoomIdClick() }
-      if(item.key === 'leave')    { handleLeaveClick() }
+      if(item.key === 'users')        { handleUserClick() }
+      if(item.key === 'waiting')      { handleWaitingClick() }
+      if(item.key === 'chat')         { handleChatClick() }
+      if(item.key === 'roomId')       { handleCopyRoomIdClick() }
+      if(item.key === 'screen-share') { handleScreenShareClick() }
+      if(item.key === 'leave')        { handleLeaveClick() }
+    }
+    if(!sharingScreen) {
+      items.splice(4, 0, { key: 'screen-share', value: 'Sharing Screen' });
+    }
+    if(sharingScreen && sharingScreen.socketId === socketIO.socket.id) {
+      items.splice(4, 0, { key: 'screen-share', value: 'Stop Share Screen' });
     }
     return (
       <Menu onClick={handleClick}>
