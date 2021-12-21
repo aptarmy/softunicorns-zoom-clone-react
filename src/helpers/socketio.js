@@ -11,7 +11,8 @@ class SocketIO {
 		if(this.socket) { this.socket.disconnect() }
 		const { token } = store.getState().user;
 		if(!token) { return message.error('You are not logged in.') }
-		this.socket = io(process.env.REACT_APP_API_SERVER, {
+		const apiServer = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_API_SERVER_DEV : process.env.REACT_APP_API_SERVER_CODESANDBOX;
+		this.socket = io(apiServer, {
 			auth: { token },
 			query: { roomSlug }
 		});

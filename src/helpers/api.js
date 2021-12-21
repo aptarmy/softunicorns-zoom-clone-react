@@ -3,7 +3,8 @@ import { message } from 'antd';
 import store from '../store';
 import { logout } from '../store/userReducer';
 
-const axiosInstance = axios.create({ baseURL: process.env.REACT_APP_API_SERVER });
+const apiServer = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_API_SERVER_DEV : process.env.REACT_APP_API_SERVER_CODESANDBOX;
+const axiosInstance = axios.create({ baseURL: apiServer });
 axiosInstance.interceptors.response.use(response => response, error => {
 	if(error.response && error.response.data) { message.error(error.response.data.error) }
 	if(error.response && error.response.status === 401 && store.getState().user.id !== null) { store.dispatch(logout()) }
