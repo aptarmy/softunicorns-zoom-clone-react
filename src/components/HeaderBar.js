@@ -52,7 +52,7 @@ const Header = () => {
       avatar={{ children: 'S', style: { backgroundColor: '#f56a00', verticalAlign: 'middle' }, size: 'large', gap: '4' }}
       ghost={false}
       title={<span className={styles.siteName}>Zoom Clone</span>}
-      subTitle={<span className={styles.siteDescription}>powered by SoftUnicorns</span>}
+      subTitle={<span className={styles.siteDescription}>made with love by <a target="_blank" rel="noreferrer noopener" href="https://www.linkedin.com/in/pakpoom-tiwakornkit-955783190">Pakpoom Tiwakornkit</a></span>}
       extra={extra}
     />
   );

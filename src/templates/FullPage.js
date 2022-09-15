@@ -11,7 +11,7 @@ const FullPageTemplate = props => (
         {props.children}
       </Content>
       <Footer className={styles.footer}>
-        Zoom Clone 2021 Created by SoftUnicorns
+        Zoom Clone 2021 made with love by <a target="_blank" rel="noreferrer noopener" href="https://www.linkedin.com/in/pakpoom-tiwakornkit-955783190">Pakpoom Tiwakornkit</a>
       </Footer>
     </Layout>
   </div>
